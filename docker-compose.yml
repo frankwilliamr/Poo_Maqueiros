@@ -1,0 +1,52 @@
+# Use root/example as user/password credentials
+services:
+  frontend:
+    container_name: maq-frontend
+    image: "maq-frontend"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - rede_maqueiros
+    ports:
+      - '3000:3000'
+    volumes:
+      - /app/node_modules
+      - ./frontend/:/app
+      - /frontend/app/.next
+
+  backend:
+    container_name: maq-backend
+    image: "maq-backend"
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - rede_maqueiros
+    ports:
+      - '8080:8080'
+    volumes:
+      - /app/node_modules
+      - ./backend/:/app
+
+  mariadb:
+    container_name: database
+    image: mariadb
+    hostname: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+      - MARIADB_DATABASE=Maqueiros
+      - MYSQL_PASSWORD=12345
+    networks:
+      - rede_maqueiros
+    ports:
+      - 3306:3306
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+
+networks:
+  rede_maqueiros:
+    external: true
+    driver: bridge
